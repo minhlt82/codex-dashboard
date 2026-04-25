@@ -527,7 +527,7 @@ function renderSidebar() {
   el.innerHTML = sessions.map((s, i) => {
     const isActive = i === 0;
     const isSelected = s.file === activeFile;
-    const ctxPct = s.tokens ? Math.min((s.tokens.total / s.tokens.contextWindow) * 100, 100).toFixed(0) : 0;
+    const ctxPct = s.tokens ? Math.min((s.tokens.currentInput / s.tokens.contextWindow) * 100, 100).toFixed(0) : 0;
     return `<div class="s-item ${isSelected?'active':''}" onclick="selectSession('${esc(s.file)}')">
       <div class="s-name" style="display:flex;align-items:center;gap:6px">
         ${isActive ? '<span class="live-dot"></span>' : ''}
@@ -706,7 +706,7 @@ function renderDetail(s) {
     <div class="ctx-section">
       <div class="ctx-label">
         <span style="font-family:'Space Grotesk',sans-serif;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em">Context Usage</span>
-        <span style="font-size:12px"><strong>${fmt(t.total)}</strong> / ${fmt(t.contextWindow)} <span style="color:${pctColor(pctNum)};font-weight:600">${pct}%</span></span>
+        <span style="font-size:12px"><strong>${fmt(t.currentInput)}</strong> / ${fmt(t.contextWindow)} <span style="color:${pctColor(pctNum)};font-weight:600">${pct}%</span></span>
       </div>
       <div class="ctx-track"><div class="ctx-fill" style="width:${Math.min(pctNum,100)}%;background:${barGrad(pctNum)}"></div></div>
     </div>` : ''}
