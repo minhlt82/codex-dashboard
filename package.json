@@ -1,0 +1,30 @@
+{
+  "name": "codex-dashboard",
+  "version": "1.0.0",
+  "description": "A local dashboard to visualize OpenAI Codex CLI session logs — token usage, context window breakdown, tool calls, and turn-by-turn analysis.",
+  "main": "server.js",
+  "bin": {
+    "codex-dashboard": "./server.js"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "codex",
+    "openai",
+    "cli",
+    "dashboard",
+    "token-usage",
+    "context-window",
+    "developer-tools"
+  ],
+  "author": "minhlt82",
+  "license": "MIT",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "js-tiktoken": "^1.0.21"
+  }
+}
