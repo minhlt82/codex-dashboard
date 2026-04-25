@@ -2,7 +2,27 @@
 
 A local web dashboard to visualize [OpenAI Codex CLI](https://github.com/openai/codex) session logs — token usage, context window breakdown, tool calls, and turn-by-turn analysis.
 
-![screenshot](https://img.shields.io/badge/status-beta-blue)
+![status-beta](https://img.shields.io/badge/status-beta-blue)
+
+## Screenshots
+
+<p align="center">
+  <img src="assets/preview-1.png" width="800" alt="Dashboard Overview">
+  <br>
+  <em>Main dashboard showing session timeline and token usage</em>
+</p>
+
+<p align="center">
+  <img src="assets/preview-2.png" width="800" alt="Context Breakdown">
+  <br>
+  <em>Detailed context category breakdown and tool usage</em>
+</p>
+
+<p align="center">
+  <img src="assets/preview-3.png" width="800" alt="Per-Call Inspection">
+  <br>
+  <em>Turn-by-turn inspection of API calls and messages</em>
+</p>
 
 ## Features
 
