@@ -200,7 +200,7 @@
   .ctx-label {
     display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px;
   }
-  .ctx-track { height: 6px; background: var(--bg-bar); border-radius: var(--radius-full); overflow: hidden; }
+  .ctx-track { height: 6px; background: var(--bg-bar); border-radius: var(--radius-full); position: relative; }
   .ctx-fill { height: 100%; border-radius: var(--radius-full); transition: width 0.4s ease; }
 
   /* ── Two-col grid ── */
@@ -266,7 +266,7 @@
   .t-stats .v { color: var(--text-secondary); font-weight: 600; }
   .t-ago { font-size: 10px; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; margin-left: 8px; }
   .t-detail { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
-  .t-detail.open { max-height: 8000px; }
+  .t-detail.open { max-height: none; overflow: visible; }
 
   /* Tool entries */
   .tool-list { margin-top: 6px; }
@@ -583,6 +583,17 @@ function renderDetail(s) {
     const ctxP = tk?.pct || '—';
     const totalTools = turn.calls?.reduce((a,c) => a + c.toolCalls.length, 0) || 0;
 
+    // Track peak context within this turn
+    let turnPeakInput = 0, turnPeakPct = 0;
+    for (const c of (turn.calls || [])) {
+      const inp = c.tokens?.perCall?.input_tokens || 0;
+      if (inp > turnPeakInput) {
+        turnPeakInput = inp;
+        turnPeakPct = parseFloat(c.tokens?.pct || 0);
+      }
+    }
+    const compacted = turnPeakInput > (tk?.perCall?.input_tokens || 0) * 1.5;
+
     const callsHtml = (turn.calls||[]).map((call, ci) => {
       const ct = call.tokens;
 
@@ -646,10 +657,9 @@ function renderDetail(s) {
           <div class="t-stats">
             <span>${ic('terminal')} <span class="v">${totalTools}</span> tools</span>
             <span><span class="v">${turn.calls?.length||0}</span> API calls</span>
-            ${tk?`<span>in <span class="v">${fmt(tk.perCall.input_tokens)}</span></span>
-            <span>out <span class="v">${fmt(tk.perCall.output_tokens)}</span></span>
+            ${tk?`<span>out <span class="v">${fmt(tk.cumulative.output_tokens)}</span></span>
             <span>cumul. <span class="v">${fmt(tk.cumulative.total_tokens)}</span></span>
-            <span style="color:${pctColor(parseFloat(ctxP))}">${ctxP}%</span>`:''}
+            <span style="color:${pctColor(parseFloat(ctxP))}">${ctxP}%</span>${compacted ? `<span style="color:var(--accent-orange);font-size:9px" title="Context was compacted during this turn. Peak was ${fmt(turnPeakInput)} (${turnPeakPct.toFixed(1)}%)">⚡ peak ${turnPeakPct.toFixed(0)}%</span>` : ''}`:''}
           </div>
         </div>
         <span class="t-ago">${timeAgo(turn.timestamp)}</span>
@@ -706,9 +716,9 @@ function renderDetail(s) {
     <div class="ctx-section">
       <div class="ctx-label">
         <span style="font-family:'Space Grotesk',sans-serif;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em">Context Usage</span>
-        <span style="font-size:12px"><strong>${fmt(t.currentInput)}</strong> / ${fmt(t.contextWindow)} <span style="color:${pctColor(pctNum)};font-weight:600">${pct}%</span></span>
+        <span style="font-size:12px"><strong>${fmt(t.currentInput)}</strong> / ${fmt(t.contextWindow)} <span style="color:${pctColor(pctNum)};font-weight:600">${pct}%</span>${t.peakInput > t.currentInput * 1.5 ? ` <span style="color:var(--accent-orange);font-size:10px;margin-left:6px" title="Peak context before compaction">⚡ peak ${fmt(t.peakInput)} (${(t.peakInput/t.contextWindow*100).toFixed(1)}%)</span>` : ''}</span>
       </div>
-      <div class="ctx-track"><div class="ctx-fill" style="width:${Math.min(pctNum,100)}%;background:${barGrad(pctNum)}"></div></div>
+      <div class="ctx-track"><div class="ctx-fill" style="width:${Math.min(pctNum,100)}%;background:${barGrad(pctNum)}"></div>${t.peakInput > t.currentInput * 1.5 ? `<div style="position:absolute;left:${Math.min(t.peakInput/t.contextWindow*100,100)}%;top:0;bottom:0;width:2px;background:var(--accent-orange);opacity:0.7" title="Peak before compaction"></div>` : ''}</div>
     </div>` : ''}
 
     ${breakdownHtml}
