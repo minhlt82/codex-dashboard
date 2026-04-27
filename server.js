@@ -270,6 +270,15 @@ function parseSessionFile(filePath) {
   const latestTurnRaw = turns[turns.length - 1];
   const latestCallRaw = latestTurnRaw?.calls?.[latestTurnRaw.calls.length - 1];
 
+  // Track peak context usage across all calls (context compaction resets current but peak stays)
+  let peakInput = 0;
+  for (const turn of turns) {
+    for (const call of turn.calls) {
+      const inp = call.tokenSnapshot?.perCall?.input_tokens || 0;
+      if (inp > peakInput) peakInput = inp;
+    }
+  }
+
   for (const key of Object.keys(toolStats)) {
     toolStats[key].files = [...new Set(toolStats[key].files)].slice(0, 20);
   }
@@ -342,6 +351,7 @@ function parseSessionFile(filePath) {
       total: latestCallRaw.tokenSnapshot.cumulative.total_tokens,
       contextWindow: latestCallRaw.tokenSnapshot.contextWindow,
       currentInput: latestCallRaw.tokenSnapshot.perCall?.input_tokens || 0,
+      peakInput: peakInput,
     } : null,
     rateLimits: latestCallRaw?.tokenSnapshot?.rateLimits || null,
     turns: turnSummaries, toolStats,
